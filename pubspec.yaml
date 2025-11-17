@@ -1,0 +1,19 @@
+name: maestro_just_audio
+description: An implementation of maestro package using just_audio.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dev_dependencies:
+  mocktail: ^1.0.4
+  test: ^1.26.3
+  very_good_analysis: ^10.0.0
+dependencies:
+  heart:
+    path: ../heart
+  just_audio: ^0.9.42
+  maestro:
+    path: ../maestro
+  pausable_timer: ^3.1.0+3
