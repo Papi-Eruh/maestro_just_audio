@@ -366,6 +366,13 @@ class MusicPlayerImpl implements MusicPlayer {
     if (currentPlayer == null) throw Exception('There is no player atm.');
     return currentPlayer.seek(Duration.zero);
   }
+
+  @override
+  Future<void> seek(Duration duration, {int? index}) {
+    final currentPlayer = _playerQueue.lastOrNull;
+    if (currentPlayer == null) throw Exception('There is no player atm.');
+    return currentPlayer.seek(duration, index: index);
+  }
 }
 
 class VfxPlayerImpl implements VfxPlayer {
