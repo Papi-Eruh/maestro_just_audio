@@ -28,8 +28,10 @@ class JustAudioSourceVisitor
   Future<ja.AudioSource> visitPlaylistSource(PlaylistSource source) async {
     final paths = source.list;
     if (paths.length == 1) return paths.first.accept(this);
-    final z = await Future.wait(paths.map((e) => Future.value(e.accept(this))));
-    return ja.ConcatenatingAudioSource(children: z);
+    final children = await Future.wait(
+      paths.map((e) => Future.value(e.accept(this))),
+    );
+    return ja.ConcatenatingAudioSource(children: children);
   }
 
   @override
@@ -145,10 +147,15 @@ class AudioPlayerImpl implements AudioPlayer {
   }
 
   @override
-  Future<Duration?> setAudioSource(AudioSource source) async {
+  Future<Duration?> setAudioSource(
+    AudioSource source, {
+    int? initialIndex,
+  }) async {
     const visitor = JustAudioSourceVisitor();
     final jaAudioSource = await source.accept(visitor);
-    return resourceSetFuture = _delegate.setAudioSource(jaAudioSource);
+    //todo
+    return resourceSetFuture =
+        _delegate.setAudioSource(jaAudioSource, initialIndex: initialIndex);
   }
 
   @override
@@ -260,10 +267,14 @@ class DisabledAudioPlayer implements AudioPlayer {
   }
 
   @override
-  Future<Duration?> setAudioSource(AudioSource source) async {
+  Future<Duration?> setAudioSource(
+    AudioSource source, {
+    int? initialIndex,
+  }) async {
     const visitor = JustAudioSourceVisitor();
     final jaAudioSource = await source.accept(visitor);
-    return resourceSetFuture = _delegate.setAudioSource(jaAudioSource);
+    return resourceSetFuture =
+        _delegate.setAudioSource(jaAudioSource, initialIndex: initialIndex);
   }
 
   @override
@@ -314,8 +325,10 @@ class MusicPlayerImpl implements MusicPlayer {
   }
 
   @override
-  Future<void> pushAudioSource(AudioSource source) {
-    return _push((player) => player.setAudioSource(source));
+  Future<void> pushAudioSource(AudioSource source, {int? initialIndex}) {
+    return _push(
+      (player) => player.setAudioSource(source, initialIndex: initialIndex),
+    );
   }
 
   Future<void> _replace(
@@ -334,8 +347,10 @@ class MusicPlayerImpl implements MusicPlayer {
   }
 
   @override
-  Future<void> replaceAudioSource(AudioSource source) {
-    return _replace((player) => player.setAudioSource(source));
+  Future<void> replaceAudioSource(AudioSource source, {int? initialIndex}) {
+    return _replace(
+      (player) => player.setAudioSource(source, initialIndex: initialIndex),
+    );
   }
 
   @override
@@ -362,9 +377,8 @@ class MusicPlayerImpl implements MusicPlayer {
 
   @override
   Future<void> restart() {
-    final currentPlayer = _playerQueue.lastOrNull;
-    if (currentPlayer == null) throw Exception('There is no player atm.');
-    return currentPlayer.seek(Duration.zero);
+    //todo see if it works
+    return seek(Duration.zero, index: 0);
   }
 
   @override
