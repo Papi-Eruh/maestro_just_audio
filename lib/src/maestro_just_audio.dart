@@ -91,8 +91,8 @@ class AudioPlayerImpl implements AudioPlayer {
   }
 
   @override
-  Future<void> seek(Duration? duration) {
-    return _delegate.seek(duration);
+  Future<void> seek(Duration? duration, {int? index}) {
+    return _delegate.seek(duration, index: index);
   }
 
   @override
@@ -205,7 +205,7 @@ class DisabledAudioPlayer implements AudioPlayer {
   }
 
   @override
-  Future<void> seek(Duration? duration) async {
+  Future<void> seek(Duration? duration, {int? index}) async {
     if (duration == Duration.zero) {
       return _timer?.reset();
     }
