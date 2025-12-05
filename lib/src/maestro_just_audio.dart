@@ -359,6 +359,13 @@ class MusicPlayerImpl implements MusicPlayer {
     if (currentPlayer == null) throw Exception('There is no player atm.');
     return currentPlayer.getTrackDuration(index);
   }
+
+  @override
+  Future<void> restart() {
+    final currentPlayer = _playerQueue.lastOrNull;
+    if (currentPlayer == null) throw Exception('There is no player atm.');
+    return currentPlayer.seek(Duration.zero);
+  }
 }
 
 class VfxPlayerImpl implements VfxPlayer {
