@@ -4,6 +4,7 @@ import 'package:heart/heart.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:maestro/maestro.dart';
 import 'package:pausable_timer/pausable_timer.dart';
+import 'package:rxdart/rxdart.dart';
 
 class JustAudioSourceVisitor
     implements AudioSourceVisitor<FutureOr<ja.AudioSource>> {
@@ -153,9 +154,10 @@ class AudioPlayerImpl implements AudioPlayer {
   }) async {
     const visitor = JustAudioSourceVisitor();
     final jaAudioSource = await source.accept(visitor);
-    //todo
-    return resourceSetFuture =
-        _delegate.setAudioSource(jaAudioSource, initialIndex: initialIndex);
+    return resourceSetFuture = _delegate.setAudioSource(
+      jaAudioSource,
+      initialIndex: initialIndex,
+    );
   }
 
   @override
@@ -163,18 +165,18 @@ class AudioPlayerImpl implements AudioPlayer {
     return _delegate.currentIndexStream;
   }
 
-  //todo improve
   @override
-  Duration getTrackDuration(int index) {
-    final sequence = _delegate.sequence;
-    if (sequence == null || sequence.length < 2) {
-      final duration = _delegate.duration;
-      if (duration == null) throw Exception('Duration = null');
-      return duration;
-    }
-    final duration = sequence[index].duration;
-    if (duration == null) throw Exception('Duration = null');
-    return duration;
+  Stream<Duration?> durationStreamByIndex(int index) {
+    return Rx.combineLatest2<int?, Duration?, Duration?>(
+      _delegate.currentIndexStream,
+      _delegate.durationStream.where((e) => e != null && e != Duration.zero),
+      (currentIndex, currentDuration) {
+        if (currentIndex == index) {
+          return currentDuration;
+        }
+        return null;
+      },
+    ).distinct();
   }
 }
 
@@ -273,8 +275,10 @@ class DisabledAudioPlayer implements AudioPlayer {
   }) async {
     const visitor = JustAudioSourceVisitor();
     final jaAudioSource = await source.accept(visitor);
-    return resourceSetFuture =
-        _delegate.setAudioSource(jaAudioSource, initialIndex: initialIndex);
+    return resourceSetFuture = _delegate.setAudioSource(
+      jaAudioSource,
+      initialIndex: initialIndex,
+    );
   }
 
   @override
@@ -283,10 +287,17 @@ class DisabledAudioPlayer implements AudioPlayer {
   }
 
   @override
-  Duration getTrackDuration(int index) {
-    final duration = _delegate.sequence?[index].duration;
-    if (duration == null) throw Exception('Duration = null');
-    return duration;
+  Stream<Duration?> durationStreamByIndex(int index) {
+    return Rx.combineLatest2<int?, Duration?, Duration?>(
+      _delegate.currentIndexStream,
+      _delegate.durationStream.where((e) => e != null && e != Duration.zero),
+      (currentIndex, currentDuration) {
+        if (currentIndex == index) {
+          return currentDuration;
+        }
+        return null;
+      },
+    ).distinct();
   }
 }
 
@@ -369,23 +380,17 @@ class MusicPlayerImpl implements MusicPlayer {
   }
 
   @override
-  Duration getTrackDuration(int index) {
-    final currentPlayer = _playerQueue.lastOrNull;
-    if (currentPlayer == null) throw Exception('There is no player atm.');
-    return currentPlayer.getTrackDuration(index);
-  }
-
-  @override
-  Future<void> restart() {
-    //todo see if it works
-    return seek(Duration.zero, index: 0);
-  }
-
-  @override
   Future<void> seek(Duration duration, {int? index}) {
     final currentPlayer = _playerQueue.lastOrNull;
     if (currentPlayer == null) throw Exception('There is no player atm.');
     return currentPlayer.seek(duration, index: index);
+  }
+
+  @override
+  Stream<Duration?> durationStreamByIndex(int index) {
+    final currentPlayer = _playerQueue.lastOrNull;
+    if (currentPlayer == null) throw Exception('There is no player atm.');
+    return currentPlayer.durationStreamByIndex(index);
   }
 }
 

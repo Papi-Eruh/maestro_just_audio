@@ -17,3 +17,4 @@ dependencies:
   maestro:
     path: ../maestro
   pausable_timer: ^3.1.0+3
+  rxdart: ^0.28.0
