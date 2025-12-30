@@ -14,7 +14,7 @@ dependencies:
   heart:
     git:
       url: https://github.com/Papi-Eruh/heart.git
-  just_audio: ^0.9.42
+  just_audio: ^0.10.5
   maestro:
     git:
       url: https://github.com/Papi-Eruh/maestro.git
