@@ -1,62 +1,159 @@
 # Maestro Just Audio
 
-[![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
-[![Powered by Mason](https://img.shields.io/endpoint?url=https%3A%2F%2Ftinyurl.com%2Fmason-badge)](https://github.com/felangel/mason)
-[![License: MIT][license_badge]][license_link]
+> This package was born out of the development of the [Erudit](https://github.com/Papi-Eruh/erudit_public) application. We decided to make it open source so other developers can benefit from it.
 
-An implementation of maestro package using just_audio.
+## What is Maestro Just Audio?
 
-## Installation 💻
+`maestro_just_audio` is a Flutter package that provides a concrete implementation of the [`maestro`](https://github.com/Papi-Eruh/maestro) audio interface package. It uses the powerful and popular [`just_audio`](https://pub.dev/packages/just_audio) library to handle audio playback, giving you a ready-to-use, full-featured audio system with a clean, decoupled architecture.
 
-**❗ In order to start using Maestro Just Audio you must have the [Dart SDK][dart_install_link] installed on your machine.**
+### Key Features:
 
-Install via `dart pub add`:
+*   **Ready-to-Use Implementation**: Provides a complete, out-of-the-box implementation of the `maestro` interfaces, saving you from writing boilerplate code.
+*   **Powered by `just_audio`**: Leverages the robustness and extensive features of `just_audio`, including support for various audio formats, gapless playback, and platform integrations.
+*   **Specialized Players**: Comes with pre-configured players for different audio types: a `MusicPlayer` for background music, a `voicePlayer` for voice-overs, and a `vfxPlayer` for sound effects.
+*   **Advanced Audio Management**: Implements advanced features like a stack-based `MusicPlayer` for managing multiple playlists and a pool of players for handling concurrent sound effects efficiently.
+*   **Seamless Integration**: Designed to work perfectly with packages like [`anecdotes`](https://github.com/Papi-Eruh/anecdotes) that are built on the `maestro` interfaces.
 
-```sh
-dart pub add maestro_just_audio
+### Built with
+
+*   [![Flutter][Flutter]][Flutter-url]
+*   [![Dart][Dart]][Dart-url]
+*   [just_audio](https://pub.dev/packages/just_audio)
+*   [maestro](https://github.com/Papi-Eruh/maestro)
+
+## Getting started
+
+### Prerequisites
+
+Make sure you have the Flutter SDK (version >=3.35.0) and Dart SDK (version >=3.9.0) installed.
+
+### Installation
+
+To use this package, add it as a git dependency in your `pubspec.yaml` file, along with the `maestro` interfaces.
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  maestro:
+    git:
+      url: https://github.com/Papi-Eruh/maestro.git
+  maestro_just_audio:
+    git:
+      url: https://github.com/Papi-Eruh/maestro_just_audio.git
 ```
 
----
+Then, run `flutter pub get` in your project's root directory.
 
-## Continuous Integration 🤖
+## Usage
 
-Maestro Just Audio comes with a built-in [GitHub Actions workflow][github_actions_link] powered by [Very Good Workflows][very_good_workflows_link] but you can also add your preferred CI/CD solution.
+Welcome to the `maestro_just_audio` package! Here’s how you can set up and use your audio system in just a few steps.
 
-Out of the box, on each pull request and push, the CI `formats`, `lints`, and `tests` the code. This ensures the code remains consistent and behaves correctly as you add functionality or make changes. The project uses [Very Good Analysis][very_good_analysis_link] for a strict set of analysis options used by our team. Code coverage is enforced using the [Very Good Workflows][very_good_coverage_link].
+<br>
 
----
+### 1. Create the Maestro
 
-## Running Tests 🧪
+The first step is to create a `Maestro` instance. This package provides a simple factory function, `createMaestro()`, which will set up all the necessary players for you. It's recommended to have a single `Maestro` instance for your entire application.
 
-To run all unit tests:
+```dart
+import 'package:maestro_just_audio/maestro_just_audio.dart';
 
-```sh
-dart pub global activate coverage 1.15.0
-dart test --coverage=coverage
-dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info
+final maestro = createMaestro();
 ```
 
-To view the generated coverage report you can use [lcov](https://github.com/linux-test-project/lcov).
+<br>
 
-```sh
-# Generate Coverage Report
-genhtml coverage/lcov.info -o coverage/
+### 2. Define an `AudioSource`
 
-# Open Coverage Report
-open coverage/index.html
+The `maestro` package provides a flexible `AudioSource` system to define where your audio comes from. `maestro_just_audio` knows how to handle all of them.
+
+```dart
+import 'package:maestro/maestro.dart';
+
+// Audio from your project's assets
+final backgroundMusic = AssetAudioSource('assets/audio/theme.mp3');
+
+// Audio from a network URL
+final voiceOver = NetworkAudioSource('https://example.com/voice.mp3');
+
+// A playlist of sources
+final playlist = PlaylistSource([
+  AssetAudioSource('assets/audio/track1.mp3'),
+  AssetAudioSource('assets/audio/track2.mp3'),
+]);
 ```
 
-[dart_install_link]: https://dart.dev/get-dart
-[github_actions_link]: https://docs.github.com/en/actions/learn-github-actions
-[license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
-[license_link]: https://opensource.org/licenses/MIT
-[logo_black]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_black.png#gh-light-mode-only
-[logo_white]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_white.png#gh-dark-mode-only
-[mason_link]: https://github.com/felangel/mason
-[very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
-[very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
-[very_good_coverage_link]: https://github.com/marketplace/actions/very-good-coverage
-[very_good_ventures_link]: https://verygood.ventures
-[very_good_ventures_link_light]: https://verygood.ventures#gh-light-mode-only
-[very_good_ventures_link_dark]: https://verygood.ventures#gh-dark-mode-only
-[very_good_workflows_link]: https://github.com/VeryGoodOpenSource/very_good_workflows
+<br>
+
+### 3. Control the Players
+
+The `maestro` object gives you access to specialized players: `musicPlayer`, `voicePlayer`, and `vfxPlayer`.
+
+#### Playing Background Music
+
+The `musicPlayer` is designed for background music and can manage a stack of playlists.
+
+```dart
+// Start playing background music
+await maestro.musicPlayer.pushAudioSource(backgroundMusic);
+await maestro.musicPlayer.play();
+
+// Later, you can pause it
+await maestro.musicPlayer.pause();
+
+// Or push a new track or playlist on top of the old one
+await maestro.musicPlayer.pushAudioSource(playlist);
+
+// When you're done with the current track/playlist, pop it to return to the previous one
+await maestro.musicPlayer.pop();
+```
+
+#### Playing Voice-Overs
+
+The `voicePlayer` is a simpler player, perfect for individual audio clips like dialogue or narration.
+
+```dart
+// Set the audio source for the voice player
+await maestro.voicePlayer.setAudioSource(voiceOver);
+
+// Play the voice-over
+await maestro.voicePlayer.play();
+
+// You can listen for when it's finished
+maestro.voicePlayer.completedStream.listen((_) {
+  print('Voice-over has finished playing.');
+});
+```
+
+#### Playing Sound Effects
+
+The `vfxPlayer` is optimized for short, often overlapping sound effects. It manages a pool of players to handle multiple effects at once.
+
+```dart
+// Play a sound effect
+await maestro.vfxPlayer.playAsset('assets/audio/swoosh.wav');
+
+// Play another one immediately after, even if the first isn't finished
+await maestro.vfxPlayer.playAsset('assets/audio/click.mp3');
+```
+
+<br>
+
+### 4. Clean Up
+
+When your application is closing, or when you're done with the audio system, make sure to dispose of the `maestro` instance to release all resources.
+
+```dart
+await maestro.dispose();
+```
+
+You now have a fully functional, decoupled audio system in your Flutter app!
+
+## License
+
+Distributed under the MIT License. See `./LICENSE` for more information.
+
+[Dart]: https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white
+[Dart-url]: https://dart.dev/
+[Flutter]: https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white
+[Flutter-url]: https://flutter.dev/
