@@ -1,20 +1,28 @@
 import 'package:maestro/maestro.dart';
 import 'package:maestro_just_audio/src/maestro_just_audio.dart';
 
-/// Create a maestro for an app.
-/// One should create a single instance for the app.
+/// Creates a [Maestro] instance for the application.
+///
+/// It is recommended to create a single instance of [Maestro] for the entire
+/// application.
 Maestro createMaestro() {
   return MaestroJustAudio();
 }
 
-/// Create additional [AudioPlayer] designed for voices.
-/// eg: to be able to compute duration in parallel of another voice.
+/// Creates an additional [AudioPlayer] specifically designed for voice
+/// playback.
+///
+/// This can be used, for example, to compute the duration of a voice track in
+/// parallel with another voice.
 AudioPlayer createVoicePlayer() {
   return AudioPlayerImpl.voice();
 }
 
-/// Create additional [AudioPlayer] designed for music.
-/// eg: to be able to compute duration in parallel of another music.
+/// Creates an additional [AudioPlayer] specifically designed for music
+/// playback.
+///
+/// This can be used, for example, to compute the duration of a music track in
+/// parallel with another music track.
 AudioPlayer createMusicPlayer() {
   return AudioPlayerImpl.music();
 }

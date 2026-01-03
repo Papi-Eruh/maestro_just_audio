@@ -11,10 +11,9 @@ dev_dependencies:
   test: ^1.26.3
   very_good_analysis: ^10.0.0
 dependencies:
-  heart:
-    path: ../heart
   just_audio: ^0.9.42
   maestro:
-    path: ../maestro
-  pausable_timer: ^3.1.0+3
+    git:
+      url: https://github.com/Papi-Eruh/maestro.git
   rxdart: ^0.28.0
+  synchronized: ^3.4.0
